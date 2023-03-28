@@ -1,6 +1,7 @@
 extends KinematicBody2D
 
 var velocity = Vector2.ZERO
+var fast_fell = false
 
 func _physics_process(delta: float) -> void:
 	#Gravity
@@ -13,19 +14,21 @@ func _physics_process(delta: float) -> void:
 	else: 
 		apply_acceleration(input.x)
 	
-	#Player Movement
-	if Input.is_action_pressed("ui_right"):
-		velocity.x = 50
-	elif Input.is_action_pressed("ui_left"):
-		velocity.x = -50
-	else:
-		velocity.x = 0
 	#Jump
-	if Input.is_action_just_pressed("ui_up"):
-		velocity.y = -100
+	if is_on_floor(): 
+		fast_fell = false
+		if Input.is_action_just_pressed("ui_up"):
+			velocity.y = -130
+	else: 
+		if Input.is_action_just_released("ui_up") and velocity.y < -70:
+			velocity.y = -70
 		
+		if velocity.y > 0 and fast_fell:
+			velocity.y += 60
+			fast_fell = true
+	
 	#Apply movement to the player
-	velocity = move_and_slide(velocity)
+	velocity = move_and_slide(velocity, Vector2.UP)
 	
 func apply_gravity():
 	velocity.y += 4
